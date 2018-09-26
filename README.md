@@ -1,7 +1,7 @@
-Role Name
-=========
+Passbolt
+========
 
-A brief description of the role goes here.
+Ansible role to install and configure passbolt app on RHEL/CentOS (for now) based distro.
 
 Role Variables
 --------------
