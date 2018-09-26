@@ -1,0 +1,180 @@
+---
+- name: Install dependencies
+  include: "{{ ansible_os_family }}-setup.yml"
+  tags:
+    - passbolt
+    - passbolt-packages
+
+- name: Create temp directory
+  file: 
+    path: "{{ passbolt_tmpdir }}"
+    state: directory
+  tags:
+    - passbolt
+    - passbolt-update
+
+- name: Create system group
+  group:
+    name: "{{ passbolt_group }}"
+    system: yes
+    state: present
+  tags:
+    - passbolt
+    - passbolt-account
+
+- name: Create system user
+  user:
+    name: "{{ passbolt_user }}"
+    comment: "Libertempo system user"
+    group: "{{ passbolt_user }}"
+    home: "{{ passbolt_homedir }}"
+    shell: "/bin/bash"
+    system: yes
+    state: present
+  tags:
+    - passbolt
+    - passbolt-account
+
+- name: Create data directory
+  file:
+    path: "{{ passbolt_webroot }}"
+    state: directory
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  tags:
+    - passbolt
+
+- name: Download app package
+  get_url:
+    url: "{{ passbolt_dl_url }}"
+    dest: "{{ passbolt_tmpdir }}/{{ passbolt_archive }}"
+  tags:
+    - passbolt
+    - passbolt-update
+
+- name: Install app package
+  unarchive:
+    src: "{{ passbolt_tmpdir }}/{{ passbolt_archive }}"
+    dest: "{{ passbolt_webroot }}"
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  tags:
+    - passbolt
+    - passbolt-update
+
+- name: Disable sudo requiretty for Ansible pipelining
+  lineinfile: dest=/etc/sudoers regexp="^Defaults(\s+)(.*)requiretty(.*)" line="#Defaults\1\2requiretty\3" backrefs=yes
+#  when: etc_sudoers.stat.exists
+
+- name: Install project dependencies
+  shell: composer install
+  args:
+    chdir: "{{ passbolt_webroot }}"
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  tags:
+    - passbolt
+    - passbolt-update
+
+# Provided by package. Keep it around to update
+# for others OS's.
+#- name: Deploy gnupg extension config
+#  copy:
+#    src: "files/gnupg.ini"
+#    dest: /etc/php.d/gnupg.ini
+#    owner: root
+#    group: root
+#  tags:
+#    - passbolt
+#    - passbolt-php
+
+- name: Deploy php-fpm pool config
+  template:
+    src: fpm-app.conf.j2
+    dest: "{{ passbolt_php_fpm_pool }}"
+    owner: root
+    group: root
+    mode: 0644
+  when: passbolt_install_php
+  notify: Restart php-fpm
+  tags:
+    - passbolt
+    - passbolt-config
+
+- stat:
+    path: "{{ passbolt_sessiondir }}"
+  register: sessiondir
+  tags:
+    - passbolt
+    - passbolt-config
+
+- stat:
+    path: "{{ passbolt_cachedir }}"
+  register: cachedir
+  tags:
+    - passbolt
+    - passbolt-config
+
+- name: Create session directory
+  file:
+    path: "{{ passbolt_sessiondir }}"
+    state: directory
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  when: sessiondir.stat.isdir is not defined
+  tags:
+    - passbolt
+    - passbolt-config
+
+- name: Create cache directory
+  file:
+    path: "{{ passbolt_cachedir }}"
+    state: directory
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  when: cachedir.stat.isdir is not defined
+  tags:
+    - passbolt
+    - passbolt-config
+
+- name: Set up GPGkey
+  include: gnupg-mgnt.yml
+  tags:
+    - passbolt
+    - passbolt-gpg
+    - passbolt-config
+
+- name: Deploy App config
+  template:
+    src: config.php.j2
+    dest: "{{ passbolt_webroot }}/config/passbolt.php"
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  notify: Restart php-fpm
+  tags:
+    - passbolt
+    - passbolt-config
+
+- name: Install data into database
+  shell: "{{ passbolt_bindir }}/cake passbolt install --quiet --no-admin"
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  tags:
+    - passbolt
+    - passbolt-install
+
+- name: Set mails queue delivery check
+  cron:
+    name: "Checks and processes Passbolt emails"
+    minute: "0"
+    user: "{{ passbolt_user }}"
+    job: "{{ passbolt_bindir }}/cake EmailQueue.sender >> ./email.log"
+  tags:
+    - passbolt
+    - passbolt-cron
+
+- name: Apply SElinux configuration
+  include: selinux.yml
+  when: ansible_os_family == 'RedHat' and ansible_virtualization_type is defined and ansible_virtualization_type != "docker"

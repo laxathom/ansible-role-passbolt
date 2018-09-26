@@ -1,0 +1,6 @@
+---
+- name: Restart php-fpm
+  service:
+    name: php-fpm
+    state: restarted
+  when: passbolt_install_php

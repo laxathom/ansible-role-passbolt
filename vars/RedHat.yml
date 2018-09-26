@@ -1,0 +1,11 @@
+---
+passbolt_pkgs_deps:
+    - php-intl
+    - php-gd
+    - php-mysql
+    - php-mcrypt
+    - php-pear
+    - php-devel
+    - php-mbstring
+    - php-fpm
+    - gpgme-devel

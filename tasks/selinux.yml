@@ -1,0 +1,53 @@
+---
+- name: Install the selinux python module
+  package: name={{ item }} state=present
+  with_items:
+    - libselinux-python
+    - libsemanage-python
+    - policycoreutils-python
+  tags:
+    - passbolt
+    - passbolt-selinux
+
+- name: "Set up context workdir"
+  sefcontext:
+    target: "{{ passbolt_webroot }}(/.*)?"
+    setype: httpd_sys_rw_content_t
+  with_items:
+    - "{{ passbolt_webroot }}(/.*)?"
+    - "{{ passbolt_webroot }}/tmp(/.*)?"
+    - "{{ passbolt_webroot }}/logs(/.*)?"
+  tags:
+    - passbolt
+    - passbolt-selinux
+
+- name: "Allow php-fpm to bind to listener socket on port {{ passbolt_php_fpm_listen_port }}"
+  seport:
+    ports: "{{ passbolt_php_fpm_listen_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  when: passbolt_install_php
+  tags:
+    - passbolt
+    - passbolt-selinux
+
+- name: Toggles required SElinux booleans
+  seboolean:
+    name: "{{ item }}"
+    persistent: yes
+    state: yes
+  with_items:
+    - httpd_can_network_connect
+    - httpd_can_network_connect_db
+    - httpd_read_user_content
+    - httpd_execmem
+  tags:
+    - passbolt
+    - passbolt-selinux
+
+- name: Restore context on webroot
+  command: "restorecon -R -v {{ passbolt_webroot }}"
+  tags:
+    - passbolt
+    - passbolt-selinux

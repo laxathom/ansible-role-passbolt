@@ -1,0 +1,95 @@
+---
+- name: Bring up docker containers
+  hosts: localhost
+  gather_facts: false
+  vars:
+    inventory:
+      - name: passbolt_test_host
+        image: "chrismeyers/centos7"
+        expose: 80
+        ports:
+            - 8080:80
+  roles:
+    - role: provision_docker
+      provision_docker_inventory: "{{ inventory }}"
+      tags:
+        - docker
+
+- name: Run passbolt deployment test
+  hosts: docker_containers
+  remote_user: root
+  vars:
+    php_memory_limit: "512M"
+    php_date_timezone: "Europe/Paris"
+    php_webserver_daemon: "nginx"
+    php_enable_php_fpm: true
+    php_enable_webserver: false
+    php_sendmail_path: "/usr/sbin/sendmail -t -i"
+    php_version: "{{ _php_version }}"
+    php_enablerepo: "remi,remi-php72"
+    php_packages_state: latest
+    php_packages: {
+      php,
+      php-apcu,
+      php-common,
+      php-intl,
+      php-cli,
+      php-fpm,
+      php-gd,
+      php-curl,
+      php-imap,
+      php-json,
+      php-mbstring,
+      php-mcrypt,
+      php-opcache,
+      php-pdo,
+      php-xml,
+      php-zip,
+      php-mysql,
+    }
+    mysql_databases:
+        - name: passbolt
+          encoding: utf8mb4
+          collation: utf8mb4_unicode_ci
+    mysql_users:
+        - name: passbolt
+          host: "%"
+          password: "passbolt"
+          priv: "passbolt.*:ALL"
+    nginx_sites:
+        passbolt:
+            - listen 80
+            - server_tokens off
+            - root "{{ passbolt_webroot }}"
+            - location / { try_files $uri /index.php$is_args$args; }
+            - location ~ \.php(/|$) {
+              fastcgi_pass unix:{{ passbolt_php_fpm_listen }};
+              fastcgi_split_path_info ^(.+\.php)(/.*)$;
+              fastcgi_read_timeout 500;
+              include fastcgi_params;
+              fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+              fastcgi_param SERVER_NAME $http_host;
+              fastcgi_param DOCUMENT_ROOT $realpath_root;
+              internal;
+              }
+    mysql_enablerepo: "mysql56-community,mysql-tools-community,mysql-connectors-community"
+    mysql_daemon: mysqld
+    mysql_log_error: "/var/log/mysqld.log"
+    mysql_syslog_tag: mysqld
+    mysql_pid_file: /var/run/mysqld/mysqld.pid
+    mysql_socket: /var/lib/mysql/mysql.sock
+    mysql_packages:
+        - mysql-community-client
+        - mysql-community-server
+   passbolt_appname: nginx
+
+
+  pre_tasks:
+   - name: Install the MySQL repo.
+     yum:
+        name: "http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm"
+        state: "present"
+     when: ansible_os_family == "RedHat"
+
+  roles:
+    - passbolt

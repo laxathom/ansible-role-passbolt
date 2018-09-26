@@ -1,0 +1,68 @@
+<?php
+/**
+ * Passbolt ~ Open source password manager for teams
+ * Copyright (c) Passbolt SARL (https://www.passbolt.com)
+ *
+ * Licensed under GNU Affero General Public License version 3 of the or any later version.
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Passbolt SARL (https://www.passbolt.com)
+ * @license       https://opensource.org/licenses/AGPL-3.0 AGPL License
+ * @link          https://www.passbolt.com Passbolt(tm)
+ * @since         2.0.0
+ */
+
+return [
+
+    'App' => [
+        'fullBaseUrl' => '{{ passbolt_url }}',
+    ],
+
+    'Datasources' => [
+        'default' => [
+            'host' => '{{ passbolt_dbhost }}',
+            'port' => '{{ passbolt_dbport }}',
+            'username' => '{{ passbolt_dbuser }}',
+            'password' => '{{ passbolt_dbpass }}',
+            'database' => '{{ passbolt_dbname }}',
+        ],
+    ],
+
+    'EmailTransport' => [
+        'default' => [
+            'host' => '{{ passbolt_smtp_host }}',
+            'port' => {{ passbolt_smtp_port }},
+            'username' => '{{ passbolt_smtp_user }}',
+            'password' => '{{ passbolt_smtp_pass }}',
+            'tls' => {{ passbolt_smtp_tls }},
+            'timeout' => {{ passbolt_smtp_timeout }},
+            //'client' => null,
+            //'url' => null,
+        ],
+    ],
+    'Email' => [
+        'default' => [
+            'from' => ['{{ passbolt_smtp_sender_email }}' => '{{ passbolt_smtp_sender }}'],
+            'charset' => '{{ passbolt_smtp_sender_charset }}',
+            'headerCharset' => '{{ passbolt_smtp_sender_charset }}',
+        ],
+    ],
+
+    'ssl' => [
+        'force' => {{ passbolt_use_ssl }},
+    ],
+
+    'passbolt' => [
+        'gpg' => [
+            'keyring' => getenv("HOME") . DS . '.gnupg',
+            'putenv' => false,
+
+            'serverKey' => [
+                'fingerprint' => '{{ passbolt_gpgkey_fingerprint }}',
+                'public' => CONFIG . 'gpg' . DS . 'server-pub.asc',
+                'private' => CONFIG . 'gpg' . DS . 'server-priv.asc',
+            ],
+        ],
+    ],
+];

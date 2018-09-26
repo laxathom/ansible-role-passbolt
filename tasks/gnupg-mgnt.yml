@@ -1,0 +1,70 @@
+- name: Enable entropy handler if running on container
+  service:
+    name: haveged
+    state: started
+    enabled: yes
+  when: ansible_virtualization_type is defined and ansible_virtualization_type == "docker"
+  tags:
+    - passbolt
+    - passbolt-gpg
+
+- name: Add gpgkey info
+  template:
+    src: gpg-key.conf.j2
+    dest: "/var/lib/{{ passbolt_user }}/.gpg-key.conf"
+    owner: "{{ passbolt_user }}"
+    group: "{{ passbolt_group }}"
+  when: passbolt_generate_gpg
+  tags:
+    - passbolt
+    - passbolt-gpg
+
+- shell: gpg --list-keys "{{ passbolt_gpgkey_name}} <{{ passbolt_gpgkey_email }}>"
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  register: passbolt_gpgkey_admin
+
+- name: Generate admin GPG key
+  shell: gpg --batch --gen-key ~/.gpg-key.conf
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  when: passbolt_generate_gpg and passbolt_gpgkey_admin.rc != 0
+  tags:
+    - passbolt
+    - passbolt-gpg
+
+- shell: gpg --list-keys --fingerprint|egrep fingerprint|cut -d"=" -f2| tr -d '[:space:]'
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  when: passbolt_gpgkey_admin.rc == 0
+  register: gpg_fingerprint
+  tags:
+    - passbolt
+    - passbolt-gpg
+    - passbolt-config
+
+- set_fact:
+    passbolt_gpgkey_fingerprint: "{{ gpg_fingerprint.stdout }}"
+  when: passbolt_gpgkey_admin.rc == 0
+  tags:
+    - passbolt
+    - passbolt-gpg
+    - passbolt-config
+
+- name: Export admin pubkey
+  shell: "gpg --armor --export {{ passbolt_gpgkey_email }} > {{ passbolt_configdir }}/gpg/server-pub.asc"
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  when: passbolt_gpgkey_admin.rc == 0
+  tags:
+    - passbolt
+    - passbolt-gpg
+
+- name: Export admin pubkey
+  shell: "gpg --armor --export-secret-keys {{ passbolt_gpgkey_email }} > {{ passbolt_configdir }}/gpg/server-priv.asc"
+  become: yes
+  become_user: "{{ passbolt_user }}"
+  when: passbolt_gpgkey_admin.rc != 0
+  tags:
+    - passbolt
+    - passbolt-gpg

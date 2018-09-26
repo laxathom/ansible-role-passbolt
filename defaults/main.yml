@@ -1,0 +1,87 @@
+---
+passbolt_appname: passbolt
+
+passbolt_install_php: True
+passbolt_install_dbserver: True
+passbolt_install_webserver: True
+
+passbolt_php_fpm_includedir: "/etc/php-fpm.d"
+passbolt_php_fpm_pool: "{{ passbolt_php_fpm_includedir }}/{{ passbolt_appname }}.conf"
+passbolt_php_fpm_user: "{{ passbolt_appname }}"
+passbolt_php_fpm_group: "{{ passbolt_appname }}"
+passbolt_php_fpm_owner: "{{ passbolt_appname }}"
+passbolt_php_fpm_group: "{{ passbolt_appname }}"
+passbolt_php_fpm_mode: 660
+passbolt_php_fpm_listen_port: 7777
+passbolt_php_fpm_listen: "/var/run/php-fpm/fpm.sock"
+passbolt_php_fpm_whitelist:
+    - 127.0.0.1
+
+passbolt_version: "2.1.0"
+passbolt_archive: "v{{ passbolt_version }}.tar.gz"
+passbolt_dl_url: "https://github.com/passbolt/passbolt_api/archive/{{ passbolt_archive }}"
+
+passbolt_pkgs_deps: {
+    php,
+    php-apcu,
+    php-common,
+    php-intl,
+    php-cli,
+    php-fpm,
+    php-gd,
+    php-curl,
+    php-imap,
+    php-json,
+    php-mbstring,
+    php-mcrypt,
+    php-opcache,
+    php-pdo,
+    php-xml,
+    php-zip,
+    php-mysql,
+}
+
+passbolt_user: "{{ passbolt_appname }}"
+passbolt_group: "{{ passbolt_appname }}"
+
+passbolt_tmpdir: "/var/tmp"
+passbolt_homedir: "/var/lib/{{ passbolt_user }}"
+passbolt_sessiondir: "{{ passbolt_homedir }}/.session"
+passbolt_cachedir: "{{ passbolt_homedir }}/.cache"
+passbolt_webroot: "/var/www/passbolt"
+passbolt_configdir: "{{ passbolt_webroot }}/config"
+passbolt_bindir: "{{ passbolt_webroot }}/bin"
+passbolt_url: "http://localhost"
+
+passbolt_gpgkey_type: default
+passbolt_gpgkey_length: 2048
+passbolt_gpgkey_subtype: default
+passbolt_gpgkey_sublength: 2048
+passbolt_gpgkey_name: Passbolt
+passbolt_gpgkey_email: passbolt@domain.com
+passbolt_gpgkey_expiry: 0
+
+passbolt_generate_gpg: True
+# If above var is set to false, define your provided GPG key info below
+passbolt_server_pubkey:
+passbolt_server_privkey:
+
+passbolt_dbhost: "127.0.0.1"
+passbolt_dbport: 3386
+passbolt_dbuser: "{{ passbolt_user }}"
+passbolt_dbpass: "{{ passbolt_user }}"
+passbolt_dbname: "{{ passbolt_user }}"
+
+passbolt_smtp_host: "127.0.0.1"
+passbolt_smtp_port: 25
+passbolt_smtp_tls: "null"
+passbolt_smtp_user: "null"
+passbolt_smtp_pass: "null"
+passbolt_smtp_timeout: 30
+passbolt_smtp_sender: "passbolt"
+passbolt_smtp_sender_email: "root@localhost"
+passbolt_smtp_sender_charset: "utf-8"
+
+passbolt_error_report: False
+passbolt_error_report_email: root@localhost
+

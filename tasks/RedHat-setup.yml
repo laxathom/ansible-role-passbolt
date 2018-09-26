@@ -1,0 +1,31 @@
+- name: Install RPM packages
+  package:
+    name: "{{ item }}"
+    state: present
+    enablerepo: "{{ php_enablerepo }}"
+  with_items:
+    - php-intl
+    - php-gd
+    - php-mysql
+    - php-mcrypt
+    - php-pear
+    - php-devel
+    - php-mbstring
+    - php-fpm
+    - php-pecl-gnupg
+    - composer
+    - gpgme-devel
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - passbolt
+    - passbolt-package
+
+- name: Install entropy helper if instance is a guest
+  package:
+    name: haveged
+    state: present
+  when: ansible_virtualization_type is defined and ansible_virtualization_type in ["docker", "kvm"]
+  tags:
+    - passbolt-packages
+    - passbolt-gpg
+

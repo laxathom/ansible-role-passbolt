@@ -1,0 +1,8 @@
+*.retry
+*.swp
+ansible.cfg
+tests/roles/provision_docker
+tests/roles/geerlingguy.mysql
+tests/roles/geerlingguy.php
+tests/roles/geerlingguy.repo-remi
+tests/roles/jdauphant.nginx

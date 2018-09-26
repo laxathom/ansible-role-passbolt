@@ -1,0 +1,49 @@
+galaxy_info:
+  author: Xavier Lamien
+  description: Ansible role to install and configure passbolt API
+  company: ifeelsmart
+
+  # If the issue tracker for your role is not on github, uncomment the
+  # next line and provide a value
+  # issue_tracker_url: http://example.com/issue/tracker
+
+  license: MIT
+
+  min_ansible_version: 2.4
+
+  # If this a Container Enabled role, provide the minimum Ansible Container version.
+  # min_ansible_container_version:
+
+  # Optionally specify the branch Galaxy will use when accessing the GitHub
+  # repo for this role. During role install, if no tags are available,
+  # Galaxy will use this branch. During import Galaxy will access files on
+  # this branch. If Travis integration is configured, only notifications for this
+  # branch will be accepted. Otherwise, in all cases, the repo's default branch
+  # (usually master) will be used.
+  #github_branch:
+
+  platforms:
+  - name: EL
+    version:
+    - 7
+
+  galaxy_tags:
+    - development
+    - web
+    - php
+    - password
+    - vault
+    - passbolt
+
+dependencies:
+    - role: 'geerlingguy.repo-remi'
+      when: passbolt_install_php
+
+    - role: 'jdauphant.nginx'
+      when: passbolt_install_webserver
+
+    - role: 'geerlingguy.php'
+      when: passbolt_install_php
+
+    - role: 'geerlingguy.mysql'
+      when: passbolt_install_dbserver

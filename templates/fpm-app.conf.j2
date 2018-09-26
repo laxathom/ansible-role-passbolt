@@ -1,0 +1,25 @@
+[passbolt]
+
+user = {{ passbolt_php_fpm_user }}
+group = {{ passbolt_php_fpm_group }}
+
+listen = {{ passbolt_php_fpm_listen }}
+listen.allowed_clients = {{ passbolt_php_fpm_whitelist | join(',') }}
+listen.owner = {{ passbolt_php_fpm_owner }}
+listen.group = {{ passbolt_php_fpm_group }}
+listen.mode = {{ passbolt_php_fpm_mode }}
+
+pm = dynamic
+pm.max_children = 50
+pm.start_servers = 5
+pm.min_spare_servers = 5
+pm.max_spare_servers = 5
+pm.max_requests = 500
+
+slowlog = /var/log/php-fpm/{{ passbolt_appname }}-slow.log
+php_admin_value[error_log] = /var/log/php-fpm/{{ passbolt_appname }}-error.log
+php_admin_flag[log_errors] = on
+
+php_value[session.save_handler] = files
+php_value[session.save_path]    = {{ passbolt_sessiondir }}
+php_value[soap.wsdl_cache_dir]  = {{ passbolt_cachedir }}
