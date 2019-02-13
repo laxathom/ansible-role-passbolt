@@ -25,7 +25,7 @@
 - name: Create system user
   user:
     name: "{{ passbolt_user }}"
-    comment: "Libertempo system user"
+    comment: "Passbolt system user"
     group: "{{ passbolt_user }}"
     home: "{{ passbolt_homedir }}"
     shell: "/bin/bash"
