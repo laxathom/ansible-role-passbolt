@@ -11,7 +11,7 @@
 - name: Add gpgkey info
   template:
     src: gpg-key.conf.j2
-    dest: "/var/lib/{{ passbolt_user }}/.gpg-key.conf"
+    dest: "{{ passbolt_homedir }}/.gpg-key.conf"
     owner: "{{ passbolt_user }}"
     group: "{{ passbolt_group }}"
   when: passbolt_generate_gpg
