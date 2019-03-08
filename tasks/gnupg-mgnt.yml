@@ -22,6 +22,7 @@
 - shell: gpg --list-keys "{{ passbolt_gpgkey_name}} <{{ passbolt_gpgkey_email }}>"
   become: yes
   become_user: "{{ passbolt_user }}"
+  ignore_errors: True
   register: passbolt_gpgkey_admin
 
 - name: Generate admin GPG key
