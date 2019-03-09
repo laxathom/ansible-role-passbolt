@@ -9,8 +9,8 @@ passbolt_php_fpm_includedir: "/etc/php-fpm.d"
 passbolt_php_fpm_pool: "{{ passbolt_php_fpm_includedir }}/{{ passbolt_appname }}.conf"
 passbolt_php_fpm_user: "{{ passbolt_appname }}"
 passbolt_php_fpm_group: "{{ passbolt_appname }}"
-passbolt_php_fpm_owner: "{{ passbolt_appname }}"
-passbolt_php_fpm_group: "{{ passbolt_appname }}"
+passbolt_php_fpm_listen_owner: "{{ passbolt_appname }}"
+passbolt_php_fpm_listen_group: "{{ passbolt_appname }}"
 passbolt_php_fpm_mode: 660
 passbolt_php_fpm_listen_port: 7777
 passbolt_php_fpm_listen: "/var/run/php-fpm/fpm.sock"

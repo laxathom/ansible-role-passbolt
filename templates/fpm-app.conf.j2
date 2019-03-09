@@ -5,8 +5,8 @@ group = {{ passbolt_php_fpm_group }}
 
 listen = {{ passbolt_php_fpm_listen }}
 listen.allowed_clients = {{ passbolt_php_fpm_whitelist | join(',') }}
-listen.owner = {{ passbolt_php_fpm_owner }}
-listen.group = {{ passbolt_php_fpm_group }}
+listen.owner = {{ passbolt_php_fpm_listen_owner }}
+listen.group = {{ passbolt_php_fpm_listen_group }}
 listen.mode = {{ passbolt_php_fpm_mode }}
 
 pm = dynamic
