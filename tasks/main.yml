@@ -69,7 +69,7 @@
 #  when: etc_sudoers.stat.exists
 
 - name: Install project dependencies
-  shell: composer install
+  shell: composer -n install
   args:
     chdir: "{{ passbolt_webroot }}"
   become: yes
