@@ -53,6 +53,8 @@ passbolt_configdir: "{{ passbolt_webroot }}/config"
 passbolt_bindir: "{{ passbolt_webroot }}/bin"
 passbolt_url: "http://localhost"
 
+passbolt_use_ssl: 'true'
+
 passbolt_gpgkey_type: default
 passbolt_gpgkey_length: 2048
 passbolt_gpgkey_subtype: default
