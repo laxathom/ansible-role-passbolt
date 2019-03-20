@@ -56,7 +56,7 @@
   shell: "gpg --armor --export {{ passbolt_gpgkey_email }} > {{ passbolt_configdir }}/gpg/server-pub.asc"
   become: yes
   become_user: "{{ passbolt_user }}"
-  when: passbolt_gpgkey_admin.rc == 0
+  when: passbolt_gpgkey_admin.rc != 0
   tags:
     - passbolt
     - passbolt-gpg
