@@ -17,7 +17,7 @@ passbolt_php_fpm_listen: "/var/run/php-fpm/fpm.sock"
 passbolt_php_fpm_whitelist:
     - 127.0.0.1
 
-passbolt_version: "2.1.0"
+passbolt_version: "2.7.1"
 passbolt_archive: "v{{ passbolt_version }}.tar.gz"
 passbolt_dl_url: "https://github.com/passbolt/passbolt_api/archive/{{ passbolt_archive }}"
 
